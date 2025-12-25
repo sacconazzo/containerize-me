@@ -44,13 +44,37 @@ Interactive CLI to generate and manage Docker containers with docker-compose dyn
 
 1. Clone the repository or download the files
 
-2. Install dependencies:
+2. Create and activate a virtual environment (recommended):
+
+**On macOS/Linux:**
+
+```bash
+# Create virtual environment
+python3 -m venv venv
+
+# Activate virtual environment
+source venv/bin/activate
+```
+
+**On Windows:**
+
+```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+venv\Scripts\activate
+```
+
+> 💡 To deactivate the virtual environment later, simply run `deactivate`
+
+3. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Make sure you have Docker and docker compose installed:
+4. Make sure you have Docker and docker compose installed:
 
 ```bash
 docker --version
