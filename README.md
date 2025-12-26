@@ -21,7 +21,6 @@ Interactive CLI to generate and manage Docker containers with docker-compose dyn
 - MySQL
 - MariaDB
 - Microsoft SQL Server (MSSQL)
-- Redis
 
 ### Cache
 
@@ -118,7 +117,6 @@ From the main menu, select "Manage existing services" to:
 ? What do you want to do?
   ➕ Configure new service
   ▶️  Manage existing services
-  ❌ Exit
 
 ? Select a category: Database
 ? Select a service from Database: PostgreSQL

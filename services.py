@@ -49,17 +49,6 @@ SERVICES_CATALOG = {
             "volume_path": "/var/lib/mysql",
             "command": "--default-authentication-plugin=mysql_native_password"
         },
-        "Redis": {
-            "image": "redis:latest",
-            "default_user": "",
-            "default_password": "redis",
-            "default_database": "",
-            "default_port": 6379,
-            "has_database": False,
-            "env_vars": {},
-            "volume_path": "/data",
-            "command": "redis-server --requirepass {password}"
-        },
         "MariaDB": {
             "image": "mariadb:latest",
             "default_user": "root",
