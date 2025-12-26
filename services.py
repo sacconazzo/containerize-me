@@ -73,6 +73,20 @@ SERVICES_CATALOG = {
                 "MARIADB_PASSWORD": "password"
             },
             "volume_path": "/var/lib/mysql"
+        },
+        "MSSQL": {
+            "image": "mcr.microsoft.com/mssql/server:2022-latest",
+            "default_user": "sa",
+            "default_password": "YourStrong@Passw0rd",
+            "default_database": "mydb",
+            "default_port": 1433,
+            "has_database": True,
+            "env_vars": {
+                "ACCEPT_EULA": "Y",
+                "SA_PASSWORD": "password",
+                "MSSQL_PID": "Developer"
+            },
+            "volume_path": "/var/opt/mssql"
         }
     },
     "Cache": {
