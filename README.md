@@ -19,6 +19,7 @@ Interactive CLI to generate and manage Docker containers with docker-compose dyn
 - PostgreSQL
 - MySQL
 - MariaDB
+- Microsoft SQL Server (MSSQL)
 - Redis
 
 ### Cache

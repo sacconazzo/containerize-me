@@ -125,7 +125,7 @@ SERVICES_CATALOG = {
             "volume_path": "/var/lib/rabbitmq",
             "additional_ports": [15672]  # Management UI
         },
-        "Apache Kafka": {
+        "ApacheKafka": {
             "image": "confluentinc/cp-kafka:latest",
             "default_user": "",
             "default_password": "",
