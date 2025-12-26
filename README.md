@@ -10,6 +10,7 @@ Interactive CLI to generate and manage Docker containers with docker-compose dyn
 - 💾 **Automatic persistent volumes** - Local data storage without manual configuration
 - 🚀 **Quick start** - Option to start the container immediately after configuration
 - 📦 **Reusable compose files** - Generated docker-compose.yml files saved for future use
+- ▶️ **Manage existing services** - Start, stop, restart, and view logs of configured containers
 
 ## 🛠️ Supported Services
 
@@ -51,20 +52,20 @@ Interactive CLI to generate and manage Docker containers with docker-compose dyn
 
 ```bash
 # Create virtual environment
-python3 -m venv venv
+python3 -m venv .venv
 
 # Activate virtual environment
-source venv/bin/activate
+source .venv/bin/activate
 ```
 
 **On Windows:**
 
 ```bash
 # Create virtual environment
-python -m venv venv
+python -m venv .venv
 
 # Activate virtual environment
-venv\Scripts\activate
+.venv\Scripts\activate
 ```
 
 > 💡 To deactivate the virtual environment later, simply run `deactivate`
@@ -92,6 +93,8 @@ python cli.py
 
 ### Workflow
 
+#### Configure New Service
+
 1. **Select category** - Choose from Database, Cache, Message Queue, etc.
 2. **Select service** - Choose the specific service (e.g., MongoDB, PostgreSQL)
 3. **Configure parameters**:
@@ -101,12 +104,26 @@ python cli.py
    - Port (with suggested default)
 4. **Automatic start** - Choose whether to start the container immediately or later
 
+#### Manage Existing Services
+
+From the main menu, select "Manage existing services" to:
+
+- ▶️ **Start** a previously configured container
+- ⏹️ **Stop** a running container
+- 🔄 **Restart** a container
+- 📊 **View logs** of a container
+
 ### Example
 
 ```
 ==================================================
 🐳  Container Manager CLI
 ==================================================
+
+? What do you want to do?
+  ➕ Configure new service
+  ▶️  Manage existing services
+  ❌ Exit
 
 ? Select a category: Database
 ? Select a service from Database: PostgreSQL
@@ -150,7 +167,26 @@ After first use, the following will be created automatically:
 
 ## 🎯 Container Management
 
-### Start a container
+### Using the CLI
+
+The easiest way to manage your containers is through the CLI's built-in menu:
+
+```bash
+python cli.py
+# Select "Manage existing services" from the main menu
+```
+
+This allows you to:
+
+- Start, stop, and restart containers
+- View logs
+- All with an interactive menu
+
+### Manual Commands
+
+You can also use docker compose commands directly:
+
+#### Start a container
 
 ```bash
 docker compose -f compose-files/SERVICE-NAME-compose.yml up -d
