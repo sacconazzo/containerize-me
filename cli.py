@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Container Manager CLI - Gestione dinamica di container Docker con docker-compose
+Container Manager CLI - Dynamic management of Docker containers with docker-compose
 """
 import os
 import sys
@@ -10,7 +10,7 @@ from questionary import select, text, password, Style
 from services import SERVICES_CATALOG, generate_compose_config
 
 
-# Style personalizzato per il menu
+# Custom style for the menu
 custom_style = Style([
     ('qmark', 'fg:#673ab7 bold'),
     ('question', 'bold'),
@@ -25,7 +25,7 @@ custom_style = Style([
 
 
 def ensure_directories():
-    """Crea le directory necessarie se non esistono"""
+    """Create necessary directories if they don't exist"""
     base_dir = Path.cwd()
     volumes_dir = base_dir / "volumes"
     compose_dir = base_dir / "compose-files"
@@ -37,11 +37,11 @@ def ensure_directories():
 
 
 def select_category():
-    """Permette all'utente di scegliere una categoria di servizi"""
+    """Allows the user to choose a service category"""
     categories = list(SERVICES_CATALOG.keys())
     
     category = select(
-        "Seleziona una categoria:",
+        "Select a category:",
         choices=categories,
         style=custom_style
     ).ask()
@@ -50,11 +50,11 @@ def select_category():
 
 
 def select_service(category):
-    """Permette all'utente di scegliere un servizio dalla categoria"""
+    """Allows the user to choose a service from the category"""
     services = list(SERVICES_CATALOG[category].keys())
     
     service = select(
-        f"Seleziona un servizio da {category}:",
+        f"Select a service from {category}:",
         choices=services,
         style=custom_style
     ).ask()
@@ -63,15 +63,15 @@ def select_service(category):
 
 
 def get_service_config(category, service):
-    """Ottiene la configurazione per il servizio selezionato"""
+    """Gets the configuration for the selected service"""
     service_info = SERVICES_CATALOG[category][service]
     
-    print(f"\n🚀 Configurazione per {service}")
+    print(f"\n🚀 Configuration for {service}")
     print("=" * 50)
     
     config = {}
     
-    # Username (skip per MySQL che usa solo root)
+    # Username (skip for MySQL which only uses root)
     if service != "MySQL":
         default_user = service_info.get('default_user', 'admin')
         username = text(
@@ -90,11 +90,11 @@ def get_service_config(category, service):
     ).ask()
     config['password'] = user_password if user_password else default_pass
     
-    # Database name (se applicabile)
+    # Database name (if applicable)
     if service_info.get('has_database', False):
         default_db = service_info.get('default_database', 'mydb')
         db_name = text(
-            f"Nome database (default: {default_db}):",
+            f"Database name (default: {default_db}):",
             style=custom_style
         ).ask()
         config['database'] = db_name if db_name else default_db
@@ -102,7 +102,7 @@ def get_service_config(category, service):
     # Port
     default_port = service_info.get('default_port', 8080)
     port = text(
-        f"Porta (default: {default_port}):",
+        f"Port (default: {default_port}):",
         style=custom_style
     ).ask()
     config['port'] = port if port else default_port
@@ -111,7 +111,7 @@ def get_service_config(category, service):
 
 
 def create_compose_file(category, service, config, volumes_dir, compose_dir):
-    """Crea il file docker-compose.yml per il servizio"""
+    """Creates the docker-compose.yml file for the service"""
     service_name = f"{service.lower()}"
     volume_path = volumes_dir / service_name
     volume_path.mkdir(exist_ok=True)
@@ -124,7 +124,7 @@ def create_compose_file(category, service, config, volumes_dir, compose_dir):
         str(volume_path.absolute())
     )
     
-    # Salva il file docker-compose
+    # Save the docker-compose file
     compose_file = compose_dir / f"{service_name}-compose.yml"
     with open(compose_file, 'w') as f:
         yaml.dump(compose_config, f, default_flow_style=False, sort_keys=False)
@@ -133,157 +133,153 @@ def create_compose_file(category, service, config, volumes_dir, compose_dir):
 
 
 def start_container(compose_file):
-    """Avvia il container usando docker compose"""
+    """Starts the container using docker compose"""
     choice = select(
-        "\nVuoi avviare il container ora?",
-        choices=["Sì", "No"],
+        "\nDo you want to start the container now?",
+        choices=["Yes", "No"],
         style=custom_style
     ).ask()
     
-    if choice == "Sì":
-        print(f"\n🚀 Avvio container...")
+    if choice == "Yes":
+        print(f"\n🚀 Starting container...")
         os.system(f"docker compose -f {compose_file} up -d")
-        print(f"\n✅ Container avviato con successo!")
-        print(f"📄 File compose salvato in: {compose_file}")
+        print(f"\n✅ Container started successfully!")
+        print(f"📄 Compose file saved in: {compose_file}")
     else:
-        print(f"\n📄 File compose salvato in: {compose_file}")
-        print(f"Per avviare il container manualmente, esegui:")
+        print(f"\n📄 Compose file saved in: {compose_file}")
+        print(f"To start the container manually, run:")
         print(f"  docker compose -f {compose_file} up -d")
 
 
 def list_and_start_containers(compose_dir):
-    """Elenca e permette di avviare i container già configurati"""
+    """Lists and allows starting already configured containers"""
     compose_files = list(compose_dir.glob("*-compose.yml"))
     
     if not compose_files:
-        print("\n⚠️  Nessun file docker-compose trovato!")
-        print("Configura prima un servizio.")
+        print("\n⚠️  No docker-compose files found!")
+        print("Configure a service first.")
         return
     
-    # Lista dei servizi disponibili
+    # List of available services
     service_names = [f.stem.replace('-compose', '') for f in compose_files]
-    service_names.append("⬅️  Torna al menu principale")
     
     choice = select(
-        "\nSeleziona quale servizio avviare:",
+        "\nSelect which service to manage:",
         choices=service_names,
         style=custom_style
     ).ask()
     
-    if choice == "⬅️  Torna al menu principale" or not choice:
+    if not choice:
         return
     
-    # Trova il file compose corrispondente
+    # Find the corresponding compose file
     compose_file = compose_dir / f"{choice}-compose.yml"
     
     action = select(
-        f"\nCosa vuoi fare con {choice}?",
+        f"\nWhat do you want to do with {choice}?",
         choices=[
-            "▶️  Avvia (up -d)",
-            "⏹️  Ferma (down)",
-            "🔄 Riavvia (restart)",
-            "📊 Mostra logs",
-            "⬅️  Torna indietro"
+            "▶️  Start (up -d)",
+            "⏹️  Stop (down)",
+            "🔄 Restart",
+            "📊 Show logs"
         ],
         style=custom_style
     ).ask()
     
-    if action == "⬅️  Torna indietro" or not action:
+    if not action:
         return
     
     print()
-    if action == "▶️  Avvia (up -d)":
-        print(f"🚀 Avvio {choice}...")
+    if action == "▶️  Start (up -d)":
+        print(f"🚀 Starting {choice}...")
         os.system(f"docker compose -f {compose_file} up -d")
-        print(f"✅ {choice} avviato con successo!")
-    elif action == "⏹️  Ferma (down)":
-        print(f"⏹️  Fermo {choice}...")
+        print(f"✅ {choice} started successfully!")
+    elif action == "⏹️  Stop (down)":
+        print(f"⏹️  Stopping {choice}...")
         os.system(f"docker compose -f {compose_file} down")
-        print(f"✅ {choice} fermato con successo!")
-    elif action == "🔄 Riavvia (restart)":
-        print(f"🔄 Riavvio {choice}...")
+        print(f"✅ {choice} stopped successfully!")
+    elif action == "🔄 Restart":
+        print(f"🔄 Restarting {choice}...")
         os.system(f"docker compose -f {compose_file} restart")
-        print(f"✅ {choice} riavviato con successo!")
-    elif action == "📊 Mostra logs":
-        print(f"📊 Logs di {choice}:")
+        print(f"✅ {choice} restarted successfully!")
+    elif action == "📊 Show logs":
+        print(f"📊 Logs for {choice}:")
         os.system(f"docker compose -f {compose_file} logs --tail=50")
 
 
 def main():
-    """Funzione principale della CLI"""
+    """Main CLI function"""
     print("=" * 50)
     print("🐳  Container Manager CLI")
     print("=" * 50)
     print()
     
-    # Assicura che le directory esistano
+    # Ensure directories exist
     volumes_dir, compose_dir = ensure_directories()
     
-    # Menu principale
+    # Main menu
     action = select(
-        "Cosa vuoi fare?",
+        "What do you want to do?",
         choices=[
-            "➕ Configura nuovo servizio",
-            "▶️  Gestisci servizi esistenti",
-            "❌ Esci"
+            "➕ Configure new service",
+            "▶️  Manage existing services"
         ],
         style=custom_style
     ).ask()
     
-    if action == "❌ Esci" or not action:
-        print("\n👋 Arrivederci!")
+    if not action:
         return
     
-    if action == "▶️  Gestisci servizi esistenti":
+    if action == "▶️  Manage existing services":
         list_and_start_containers(compose_dir)
         
-        # Opzione per tornare al menu
+        # Option to return to menu
         another = select(
-            "\nVuoi fare altro?",
-            choices=["Sì", "No"],
+            "\nDo you want to do something else?",
+            choices=["Yes", "No"],
             style=custom_style
         ).ask()
         
-        if another == "Sì":
+        if another == "Yes":
             print("\n" + "=" * 50 + "\n")
             main()
         return
     
-    # Selezione categoria
+    # Category selection
     category = select_category()
     if not category:
-        print("Operazione annullata.")
+        print("Operation cancelled.")
         return
     
-    # Selezione servizio
+    # Service selection
     service = select_service(category)
     if not service:
-        print("Operazione annullata.")
+        print("Operation cancelled.")
         return
     
-    # Configurazione servizio
+    # Service configuration
     config = get_service_config(category, service)
     
-    # Crea il file docker-compose
+    # Create docker-compose file
     compose_file, service_name = create_compose_file(
         category, service, config, volumes_dir, compose_dir
     )
     
-    print(f"\n✅ Configurazione completata!")
-    print(f"📦 Nome servizio: {service_name}")
-    print(f"💾 Volumi persistenti: {volumes_dir / service_name}")
+    print(f"\n✅ Configuration completed!")
+    print(f"📦 Service name: {service_name}")
+    print(f"💾 Persistent volumes: {volumes_dir / service_name}")
     
-    # Avvia il container
+    # Start container
     start_container(compose_file)
     
-    # Opzione per configurare un altro servizio
+    # Option to configure another service
     another = select(
-        "\nVuoi configurare un altro servizio?",
-        choices=["Sì", "No"],
+        "\nDo you want to configure another service?",
+        choices=["Yes", "No"],
         style=custom_style
     ).ask()
     
-    if another == "Sì":
+    if another == "Yes":
         print("\n" + "=" * 50 + "\n")
         main()
 
@@ -292,5 +288,4 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n\n👋 Arrivederci!")
         sys.exit(0)
