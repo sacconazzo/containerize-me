@@ -151,6 +151,64 @@ def start_container(compose_file):
         print(f"  docker compose -f {compose_file} up -d")
 
 
+def list_and_start_containers(compose_dir):
+    """Elenca e permette di avviare i container già configurati"""
+    compose_files = list(compose_dir.glob("*-compose.yml"))
+    
+    if not compose_files:
+        print("\n⚠️  Nessun file docker-compose trovato!")
+        print("Configura prima un servizio.")
+        return
+    
+    # Lista dei servizi disponibili
+    service_names = [f.stem.replace('-compose', '') for f in compose_files]
+    service_names.append("⬅️  Torna al menu principale")
+    
+    choice = select(
+        "\nSeleziona quale servizio avviare:",
+        choices=service_names,
+        style=custom_style
+    ).ask()
+    
+    if choice == "⬅️  Torna al menu principale" or not choice:
+        return
+    
+    # Trova il file compose corrispondente
+    compose_file = compose_dir / f"{choice}-compose.yml"
+    
+    action = select(
+        f"\nCosa vuoi fare con {choice}?",
+        choices=[
+            "▶️  Avvia (up -d)",
+            "⏹️  Ferma (down)",
+            "🔄 Riavvia (restart)",
+            "📊 Mostra logs",
+            "⬅️  Torna indietro"
+        ],
+        style=custom_style
+    ).ask()
+    
+    if action == "⬅️  Torna indietro" or not action:
+        return
+    
+    print()
+    if action == "▶️  Avvia (up -d)":
+        print(f"🚀 Avvio {choice}...")
+        os.system(f"docker compose -f {compose_file} up -d")
+        print(f"✅ {choice} avviato con successo!")
+    elif action == "⏹️  Ferma (down)":
+        print(f"⏹️  Fermo {choice}...")
+        os.system(f"docker compose -f {compose_file} down")
+        print(f"✅ {choice} fermato con successo!")
+    elif action == "🔄 Riavvia (restart)":
+        print(f"🔄 Riavvio {choice}...")
+        os.system(f"docker compose -f {compose_file} restart")
+        print(f"✅ {choice} riavviato con successo!")
+    elif action == "📊 Mostra logs":
+        print(f"📊 Logs di {choice}:")
+        os.system(f"docker compose -f {compose_file} logs --tail=50")
+
+
 def main():
     """Funzione principale della CLI"""
     print("=" * 50)
@@ -160,6 +218,36 @@ def main():
     
     # Assicura che le directory esistano
     volumes_dir, compose_dir = ensure_directories()
+    
+    # Menu principale
+    action = select(
+        "Cosa vuoi fare?",
+        choices=[
+            "➕ Configura nuovo servizio",
+            "▶️  Gestisci servizi esistenti",
+            "❌ Esci"
+        ],
+        style=custom_style
+    ).ask()
+    
+    if action == "❌ Esci" or not action:
+        print("\n👋 Arrivederci!")
+        return
+    
+    if action == "▶️  Gestisci servizi esistenti":
+        list_and_start_containers(compose_dir)
+        
+        # Opzione per tornare al menu
+        another = select(
+            "\nVuoi fare altro?",
+            choices=["Sì", "No"],
+            style=custom_style
+        ).ask()
+        
+        if another == "Sì":
+            print("\n" + "=" * 50 + "\n")
+            main()
+        return
     
     # Selezione categoria
     category = select_category()
