@@ -162,29 +162,6 @@ SERVICES_CATALOG = {
             "volume_path": "/usr/share/elasticsearch/data",
             "additional_ports": [9300]
         }
-    },
-    "Web Server": {
-        "Nginx": {
-            "image": "nginx:latest",
-            "default_user": "",
-            "default_password": "",
-            "default_port": 8080,
-            "has_database": False,
-            "env_vars": {},
-            "volume_path": "/usr/share/nginx/html",
-            "additional_volumes": {
-                "/etc/nginx/conf.d": "config"
-            }
-        },
-        "Apache": {
-            "image": "httpd:latest",
-            "default_user": "",
-            "default_password": "",
-            "default_port": 80,
-            "has_database": False,
-            "env_vars": {},
-            "volume_path": "/usr/local/apache2/htdocs"
-        }
     }
 }
 

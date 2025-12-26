@@ -37,11 +37,6 @@ Interactive CLI to generate and manage Docker containers with docker-compose dyn
 
 - Elasticsearch
 
-### Web Server
-
-- Nginx
-- Apache
-
 ## 📦 Installation
 
 1. Clone the repository or download the files
