@@ -71,13 +71,16 @@ def get_service_config(category, service):
     
     config = {}
     
-    # Username
-    default_user = service_info.get('default_user', 'admin')
-    username = text(
-        f"Username (default: {default_user}):",
-        style=custom_style
-    ).ask()
-    config['username'] = username if username else default_user
+    # Username (skip per MySQL che usa solo root)
+    if service != "MySQL":
+        default_user = service_info.get('default_user', 'admin')
+        username = text(
+            f"Username (default: {default_user}):",
+            style=custom_style
+        ).ask()
+        config['username'] = username if username else default_user
+    else:
+        config['username'] = 'root'
     
     # Password
     default_pass = service_info.get('default_password', 'password123')

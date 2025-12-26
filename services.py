@@ -29,12 +29,13 @@ SERVICES_CATALOG = {
             "env_vars": {
                 "POSTGRES_USER": "username",
                 "POSTGRES_PASSWORD": "password",
-                "POSTGRES_DB": "database"
+                "POSTGRES_DB": "database",
+                "POSTGRES_HOST_AUTH_METHOD": "trust"
             },
             "volume_path": "/var/lib/postgresql/data"
         },
         "MySQL": {
-            "image": "mysql:latest",
+            "image": "mysql:8.0",
             "default_user": "root",
             "default_password": "root",
             "default_database": "mydb",
@@ -43,10 +44,10 @@ SERVICES_CATALOG = {
             "env_vars": {
                 "MYSQL_ROOT_PASSWORD": "password",
                 "MYSQL_DATABASE": "database",
-                "MYSQL_USER": "username",
                 "MYSQL_PASSWORD": "password"
             },
-            "volume_path": "/var/lib/mysql"
+            "volume_path": "/var/lib/mysql",
+            "command": "--default-authentication-plugin=mysql_native_password"
         },
         "Redis": {
             "image": "redis:latest",
