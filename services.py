@@ -126,15 +126,22 @@ SERVICES_CATALOG = {
             "additional_ports": [15672]  # Management UI
         },
         "ApacheKafka": {
-            "image": "confluentinc/cp-kafka:latest",
+            "image": "confluentinc/cp-kafka:7.5.0",
             "default_user": "",
             "default_password": "",
             "default_port": 9092,
             "has_database": False,
             "env_vars": {
+                "KAFKA_BROKER_ID": "1",
                 "KAFKA_ZOOKEEPER_CONNECT": "zookeeper:2181",
                 "KAFKA_ADVERTISED_LISTENERS": "PLAINTEXT://localhost:9092",
-                "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR": "1"
+                "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP": "PLAINTEXT:PLAINTEXT",
+                "KAFKA_INTER_BROKER_LISTENER_NAME": "PLAINTEXT",
+                "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR": "1",
+                "KAFKA_TRANSACTION_STATE_LOG_MIN_ISR": "1",
+                "KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR": "1",
+                "KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS": "0",
+                "KAFKA_AUTO_CREATE_TOPICS_ENABLE": "true"
             },
             "volume_path": "/var/lib/kafka/data",
             "requires_zookeeper": True
@@ -161,7 +168,7 @@ SERVICES_CATALOG = {
             "image": "nginx:latest",
             "default_user": "",
             "default_password": "",
-            "default_port": 80,
+            "default_port": 8080,
             "has_database": False,
             "env_vars": {},
             "volume_path": "/usr/share/nginx/html",
@@ -238,6 +245,12 @@ def generate_compose_config(category, service, service_name, config, volume_path
     
     # Gestione servizi con dipendenze (es. Kafka con Zookeeper)
     if service_info.get("requires_zookeeper"):
+        # Kafka usa una sottodirectory separata per evitare conflitti con zookeeper
+        if service_info.get("volume_path") and service_config.get("volumes"):
+            service_config["volumes"] = [
+                f"{volume_path}/kafka:{service_info['volume_path']}"
+            ]
+        
         compose_config["services"]["zookeeper"] = {
             "image": "confluentinc/cp-zookeeper:latest",
             "container_name": f"{service_name}-zookeeper",
